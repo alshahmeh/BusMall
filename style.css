@@ -5,15 +5,16 @@ body {
   width: 960px;
   margin: auto;
   font-family: 'Montserrat', sans-serif;
+  background-color: rgb(88, 83, 82);
 }
 
 .container {
   display: grid;
-  grid-template-rows: 100px 700px 50px;
+  grid-template-rows: 100px 700px 100px;
   gap: 10px;
 }
 
-main{display: grid;grid-template-columns: 160px 850px;gap: 50px;}
+main{display: grid;grid-template-columns: 200px 400px;gap: 50px;}
 header {
   background: #393e46;
   display: grid;

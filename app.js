@@ -1,164 +1,100 @@
 'use strict';
-
-let allProductNames = [
-  'bag',
-  'banana',
-  'bathroom',
-  'boots',
-  'breakfast',
-  'bubblegum',
-  'chair',
-  'cthulhu',
-  'dog-duck',
-  'dragon',
-  'pen',
-  'pet-sweep',
-  'scissors',
-  'shark',
-  'sweep',
-  'tauntaun',
-  'unicorn',
-  'usb',
-  'water-can',
-  'wine-glass',
+let imagesArray = [
+  'bag.jpg',
+  'banana.jpg',
+  'bathroom.jpg',
+  'boots.jpg',
+  'breakfast.jpg',
+  'bubblegum.jpg',
+  'chair.jpg',
+  'cthulhu.jpg',
+  'dog-duck.jpg',
+  'dragon.jpg',
+  'pen.jpg',
+  'pet-sweep.jpg',
+  'scissors.jpg',
+  'shark.jpg',
+  'sweep.png',
+  'tauntaun.jpg',
+  'unicorn.jpg',
+  'usb.gif',
+  'water-can.jpg',
+  'wine-glass.jpg'
 ];
-let allProductSrc = [
-  './img/bag.jpg',
-  './img/banana.jpg',
-  './img/bathroom.jpg',
-  './img/boots.jpg',
-  './img/breakfast.jpg',
-  './img/bubblegum.jpg',
-  './img/chair.jpg',
-  './img/cthulhu.jpg',
-  './img/dog-duck.jpg',
-  './img/dragon.jpg',
-  './img/pen.jpg',
-  './img/pet-sweep.jpg',
-  './img/scissors.jpg',
-  './img/shark.jpg',
-  './img/sweep.png',
-  './img/tauntaun.jpg',
-  './img/unicorn.jpg',
-  './img/usb.gif',
-  './img/water-can.jpg',
-  './img/wine-glass.jpg',
-];
-let stats=document.getElementById('stats');
-let productContainer = document.getElementById('allProducts');
-let buttonLinks = document.getElementById('button');
-let leftImgTag = document.getElementById('left');
-let middleImgTag = document.getElementById('center');
-let rightImgTag = document.getElementById('right');
+const showResults = document.getElementById('button');
+const resultContainer = document.getElementById('resultContainer');
+const rightImage = document.getElementById('rightImage');
+const middleImage = document.getElementById('middleImage');
+const leftImage = document.getElementById('leftImage');
+const imageSection = document.getElementById('imageSection');
+let clickNumber=0;
+let rightImageIndex=0;
+let leftImageIndex=0;
+let middleImageIndex=0;
 
-let totalClicks = 0;
-//holds all products instantiated
-Product.allProducts = [];
-//holds 6 values
-Product.checkDupes = [];
-
-// //store products already on the page
-let leftProduct = null;
-let middleProduct = null;
-let rightProduct = null;
-
-function Product(name, src) {
-  this.name = name;
-  this.src = src;
+function Images(name) {
+  this.name = name.split('.')[0];
+  this.img = `./img/${name}`;
+  this.shown = 0;
   this.clicks = 0;
-  this.timesShown = 0;
-  Product.allProducts.push(this);
+  Images.all.push(this);
+
+}
+Images.all = [];
+
+for (let i = 0; i < imagesArray.length; i++) {
+  new Images(imagesArray[i]);
 }
 
-function instantiateProducts() {
-  for (let i = 0; i < allProductNames.length; i++) {
-    new Product(allProductNames[i], allProductSrc[i]);
+function eventHandler(e) {
+  if ((e.target.id === 'leftImage' || e.target.id === 'rigthImage' || e.target.id === 'middleImage') && clickNumber < 25) {
+
+    if (e.target.id === 'leftImage') { Images.all[leftImageIndex].clicks++; }
+    if (e.target.id === 'rightImage') { Images.all[rightImageIndex].clicks++; }
+    if (e.target.id === 'middleImage') { Images.all[middleImageIndex].clicks++; }
+    clickNumber++;
+    renderImages();
   }
 }
+function renderImages() {
+  let leftIndex = randomNumber(0, imagesArray.length - 1);
+  let middleIndex;
+  let rightIndex;
+  do {
+    rightIndex = randomNumber(0, imagesArray.length - 1);
+    middleIndex = randomNumber(0, imagesArray.length - 1);
+  }while (leftIndex === rightIndex || leftIndex === middleIndex || rightIndex === middleIndex);
+  rightImage.src = Images.all[rightIndex].img;
+  middleImage.src = Images.all[middleIndex].img;
+  leftImage.src = Images.all[leftIndex].img;
 
-function randomNumber() {
-  return Math.floor(Math.random() * Product.allProducts.length);
+  rightImageIndex = rightIndex;
+  middleImageIndex = middleIndex;
+  leftImageIndex = leftIndex;
+
+  Images.all[leftIndex].shown++;
+  Images.all[rightIndex].shown++;
+  Images.all[middleIndex].shown++;
 }
 
-function displayProducts() {
-  //generate array of random # that correlates with each index
-  while (Product.checkDupes.length < 6) {
-    let number = randomNumber();
-    //if the number is not in the array, then that image has not been shown,
-    //so push the number into the array
-    if (!Product.checkDupes.includes(number)) {
-      Product.checkDupes.push(number);
-    }
-    //do this until the array is at 6 numbers again
-    //all 6 numbers are unique
-  }
-  leftImgTag.src = Product.allProducts[Product.checkDupes[0]].src;
-  Product.allProducts[Product.checkDupes[0]].timesShown++;
-  leftProduct = Product.allProducts[Product.checkDupes[0]];
-
-  middleImgTag.src = Product.allProducts[Product.checkDupes[1]].src;
-  Product.allProducts[Product.checkDupes[1]].timesShown++;
-  middleProduct = Product.allProducts[Product.checkDupes[1]];
-
-  rightImgTag.src = Product.allProducts[Product.checkDupes[2]].src;
-  Product.allProducts[Product.checkDupes[2]].timesShown++;
-  rightProduct = Product.allProducts[Product.checkDupes[2]];
-
-  //only keep the last 3 numbers because the first 3 have been used
-  //these 3 nums will now be at the beginning of checkDupes
-  Product.checkDupes = Product.checkDupes.slice(3, 6);
-}
-function renderStats() {
-  let h1El = document.createElement('h1');
-  stats.appendChild(h1El);
-  h1El.textContent = 'Stats';
-
-
-  for (let i = 0; i < Product.allProducts.length; i++) {
-    let liEl = document.createElement('li');
-    liEl.textContent =Product.allProducts[i].clicks +' votes for ' +Product.allProducts[i].name;
-    liEl.textContent=`${Product.allProducts[i].name} had ${Product.allProducts[i].clicks} votes, and was seen ${Product.allProducts[i].timesShown} times`;
-    stats.appendChild(liEl);
-  }
+function randomNumber( min, max ) {
+  return Math.floor( Math.random() * ( max - min + 1 ) + min ); //The maximum is inclusive and the minimum is inclusive
 }
 
-function checkStorage() {
-  if (localStorage.setProducts) {
-    let stringifyProducts = localStorage.getItem('setProducts');
-    Product.allProducts = JSON.parse(stringifyProducts);
-  } else {
-    instantiateProducts();
+imageSection.addEventListener('click', eventHandler);
+renderImages();
+
+
+function viewResults( ) {
+  let ul = document.createElement('ul');
+  resultContainer.appendChild(ul);
+  for (let a = 0; a < Images.all.length; a++) {
+    let li = document.createElement('li');
+    ul.appendChild(li);
+    li.textContent = `${Images.all[a].name} had a ${Images.all[a].clicks} votes and was seen a ${Images.all[a].shown}`;
   }
+  showResults.removeEventListener('click', viewResults);
 }
 
-let handleClick = function (event) {
-  if (event.target === productContainer) {
-    return alert('click on an image, please');
-  }
-  totalClicks++;
-  let clickedProduct = event.target;
-  let id = clickedProduct.id;
-  if (id === 'left') {
-    leftProduct.clicks++;
-  }
-  if (id === 'center') {
-    middleProduct.clicks++;
-  }
-  if (id === 'right') {
-    rightProduct.clicks++;
-  }
 
-  if (totalClicks === 25) {
-    productContainer.removeEventListener('click', handleClick);
-    renderStats();
-
-    localStorage.setItem('setProducts', JSON.stringify(Product.allProducts));
-  }
-  displayProducts();
-};
-
-checkStorage();
-displayProducts();
-
-productContainer.addEventListener('click', handleClick);
-buttonLinks.onclick=document.getElementById('statsContainer').style.display='block';
+showResults.addEventListener('click', viewResults);
