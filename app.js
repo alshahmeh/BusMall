@@ -31,7 +31,7 @@ let clickNumber=0;
 let rightImageIndex=0;
 let leftImageIndex=0;
 let middleImageIndex=0;
-
+Images.lastShown=[];
 function Images(name) {
   this.name = name.split('.')[0];
   this.img = `./img/${name}`;
@@ -40,8 +40,7 @@ function Images(name) {
   Images.all.push(this);
 
 }
-Images.all = [];
-
+Images.all=[];
 for (let i = 0; i < imagesArray.length; i++) {
   new Images(imagesArray[i]);
 }
@@ -55,15 +54,24 @@ function eventHandler(e) {
     clickNumber++;
     renderImages();
   }
+  else{renderChart();}
 }
+
 function renderImages() {
-  let leftIndex = randomNumber(0, imagesArray.length - 1);
-  let middleIndex;
-  let rightIndex;
-  do {
-    rightIndex = randomNumber(0, imagesArray.length - 1);
-    middleIndex = randomNumber(0, imagesArray.length - 1);
-  }while (leftIndex === rightIndex || leftIndex === middleIndex || rightIndex === middleIndex);
+  let leftIndex =Math.floor( Math.random() * imagesArray.length);
+  let middleIndex=Math.floor( Math.random() * imagesArray.length);
+  let rightIndex=Math.floor( Math.random() * imagesArray.length);
+  while( leftIndex === middleIndex
+    || middleIndex === rightIndex
+    || leftIndex === rightIndex
+    || Images.lastShown.includes(leftIndex)
+    || Images.lastShown.includes(middleIndex)
+    || Images.lastShown.includes(leftIndex)){
+    leftIndex= Math.floor(Math.random()* imagesArray.length);
+    middleIndex= Math.floor(Math.random()*imagesArray.length);
+    rightIndex= Math.floor(Math.random()* imagesArray.length);
+  }
+
   rightImage.src = Images.all[rightIndex].img;
   middleImage.src = Images.all[middleIndex].img;
   leftImage.src = Images.all[leftIndex].img;
@@ -75,10 +83,12 @@ function renderImages() {
   Images.all[leftIndex].shown++;
   Images.all[rightIndex].shown++;
   Images.all[middleIndex].shown++;
-}
 
-function randomNumber( min, max ) {
-  return Math.floor( Math.random() * ( max - min + 1 ) + min ); //The maximum is inclusive and the minimum is inclusive
+
+  Images.lastShown=[];
+  Images.lastShown.push(leftIndex);
+  Images.lastShown.push(middleIndex);
+  Images.lastShown.push(rightIndex);
 }
 
 imageSection.addEventListener('click', eventHandler);
@@ -95,6 +105,49 @@ function viewResults( ) {
   }
   showResults.removeEventListener('click', viewResults);
 }
-
-
 showResults.addEventListener('click', viewResults);
+function renderChart(){
+  let _clicks=[];
+  let _names=[];
+  let _showes=[];
+  for(let b=0;b<Images.all.length;b++){_clicks.push(Images.all[b].clicks);_names.push(Images.all[b].name);_showes.push(Images.all[b].shown);}
+
+  let ctx = document.getElementById('myChart').getContext('2d');
+  let myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels:_names,
+      datasets: [{
+        label: '# of Votes',
+        data: _clicks,
+        backgroundColor:
+        'rgba(255, 99, 132, 1)',
+        borderColor:
+          'rgba(255, 99, 132, 1)',
+        borderWidth: 1},
+
+
+      {
+
+        label: '3 of shoes',
+        data: _showes,
+        backgroundColor:
+            'rgba(54, 162, 235, 0.2)',
+
+        borderColor:
+        'rgba(54, 162, 235, 0.2)',
+        borderWidth: 1
+
+      }
+      ]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  }
+  );
+}
