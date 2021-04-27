@@ -45,6 +45,7 @@ for (let i = 0; i < imagesArray.length; i++) {
   new Images(imagesArray[i]);
 }
 
+imageSection.addEventListener('click', eventHandler);
 function eventHandler(e) {
   if ((e.target.id === 'leftImage' || e.target.id === 'rigthImage' || e.target.id === 'middleImage') && clickNumber < 25) {
 
@@ -54,9 +55,13 @@ function eventHandler(e) {
     clickNumber++;
     renderImages();
   }
-  else{renderChart();}
+  else{renderChart();getData();}
 }
-
+saveData();
+function saveData(){localStorage.setItem('key',JSON.stringify(Images.all));
+  localStorage.setItem('key1',Images.all.clicks);
+  localStorage.setItem('key2',Images.all.shown);
+}
 function renderImages() {
   let leftIndex =Math.floor( Math.random() * imagesArray.length);
   let middleIndex=Math.floor( Math.random() * imagesArray.length);
@@ -66,7 +71,7 @@ function renderImages() {
     || leftIndex === rightIndex
     || Images.lastShown.includes(leftIndex)
     || Images.lastShown.includes(middleIndex)
-    || Images.lastShown.includes(leftIndex)){
+    || Images.lastShown.includes(rightIndex)){
     leftIndex= Math.floor(Math.random()* imagesArray.length);
     middleIndex= Math.floor(Math.random()*imagesArray.length);
     rightIndex= Math.floor(Math.random()* imagesArray.length);
@@ -90,10 +95,12 @@ function renderImages() {
   Images.lastShown.push(middleIndex);
   Images.lastShown.push(rightIndex);
 }
+showResults.removeEventListener('click', viewResults);
 
-imageSection.addEventListener('click', eventHandler);
+
 renderImages();
 
+showResults.addEventListener('click', viewResults);
 
 function viewResults( ) {
   let ul = document.createElement('ul');
@@ -103,9 +110,7 @@ function viewResults( ) {
     ul.appendChild(li);
     li.textContent = `${Images.all[a].name} had a ${Images.all[a].clicks} votes and was seen a ${Images.all[a].shown}`;
   }
-  showResults.removeEventListener('click', viewResults);
 }
-showResults.addEventListener('click', viewResults);
 function renderChart(){
   let _clicks=[];
   let _names=[];
@@ -113,6 +118,7 @@ function renderChart(){
   for(let b=0;b<Images.all.length;b++){_clicks.push(Images.all[b].clicks);_names.push(Images.all[b].name);_showes.push(Images.all[b].shown);}
 
   let ctx = document.getElementById('myChart').getContext('2d');
+  // eslint-disable-next-line no-unused-vars
   let myChart = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -150,4 +156,15 @@ function renderChart(){
     }
   }
   );
+}
+
+function getData(){
+  let data=JSON.parse(localStorage.getItem('key'));
+
+  if(data){
+    for(let a=0;a<data.length;a++){
+      new Images(data[a].name);
+    }
+    renderImages();
+  }
 }
